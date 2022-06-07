@@ -43,6 +43,8 @@ packages/frontend/out/
 packages/frontend/build
 # contracts
 # packages/frontend/artifacts/*
+packages/frontend/contracts/types/*
 
 # vscode
 .vscode
+
