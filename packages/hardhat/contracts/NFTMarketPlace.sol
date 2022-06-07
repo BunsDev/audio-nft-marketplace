@@ -8,48 +8,57 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract NFTMarketPlace is ReentrancyGuard, Ownable {
     using Counters for Counters.Counter;
-
     Counters.Counter private _itemIds;
-    Counters.Counter private _itemsSold;
     uint256 public listingPrice;
-    uint256 public listingBalance;
 
     constructor(uint256 _listingPrice) {
         listingPrice = _listingPrice;
     }
 
     struct MarketItem {
-        uint256 id;
+        uint256 itemId;
         address nftContract;
         uint256 tokenId;
         address payable seller;
-        address payable owner;
         uint256 price;
-        bool sold;
     }
 
-    mapping(uint256 => MarketItem) private idToMarketItem;
+    MarketItem[] public marketItems;
+
+    // itemId => marketItems index
+    mapping(uint256 => uint256) private _marketItemIndex;
+
+    // itemId => isValid
+    mapping(uint256 => bool) private _itemIdValid;
+
+    // nftContract => tokenId => exists
+    mapping(address => mapping(uint256 => bool)) private _marketItemExists;
 
     event MarketItemCreated(
-        uint256 indexed id,
+        uint256 indexed itemId,
         address indexed nftContract,
         uint256 indexed tokenId,
         address seller,
-        address owner,
-        uint256 price,
-        bool sold
+        uint256 price
     );
-
-    function withdrawListingBalance() external onlyOwner {
-        owner().call{value: listingBalance}("");
-    }
 
     function createMarketItem(
         address nftContract,
         uint256 tokenId,
         uint256 price
     ) external payable nonReentrant {
+        require(
+            _marketItemExists[nftContract][tokenId] == false,
+            "item already exists"
+        );
+
+        require(
+            IERC721(nftContract).ownerOf(tokenId) == msg.sender,
+            "only the owner of token can sell it"
+        );
+
         require(price > 0, "Price must be at least 1 wei");
+
         require(
             msg.value == listingPrice,
             "msg.value must be equal to listing price"
@@ -58,71 +67,77 @@ contract NFTMarketPlace is ReentrancyGuard, Ownable {
         _itemIds.increment();
         uint256 itemId = _itemIds.current();
 
-        idToMarketItem[itemId] = MarketItem(
+        MarketItem memory newMarketItem = MarketItem(
             itemId,
             nftContract,
             tokenId,
             payable(msg.sender),
-            payable(address(0)),
-            price,
-            false
+            price
         );
 
-        emit MarketItemCreated(
-            itemId,
-            nftContract,
-            tokenId,
-            msg.sender,
-            address(0),
-            price,
-            false
-        );
+        marketItems.push(newMarketItem);
+        _marketItemIndex[itemId] = marketItems.length - 1;
+        _itemIdValid[itemId] = true;
+        _marketItemExists[nftContract][tokenId] = true;
+
+        if (listingPrice > 0) {
+            (bool sent, ) = owner().call{value: listingPrice}("");
+            require(sent, "Failed to send Ether to the owner of contract");
+        }
+
+        emit MarketItemCreated(itemId, nftContract, tokenId, msg.sender, price);
     }
 
-    function buyMarketItem(address nftContract, uint256 itemId)
-        external
-        payable
-        nonReentrant
-    {
-        require(itemId <= _itemIds.current(), "itemId is not valid");
+    function removeMarketItem(uint256 itemId) external {
+        require(_itemIdValid[itemId], "item id is not valid");
 
-        MarketItem storage marketItem = idToMarketItem[itemId];
+        uint256 marketItemIndex = _marketItemIndex[itemId];
+        MarketItem memory marketItem = marketItems[marketItemIndex];
 
-        require(marketItem.owner == address(0), "item is already sold out");
+        require(
+            marketItem.seller == msg.sender,
+            "only the owner of item can remove it"
+        );
+
+        _deleteMarketItem(itemId);
+    }
+
+    function buyMarketItem(uint256 itemId) external payable nonReentrant {
+        require(_itemIdValid[itemId], "item id is not valid");
+
+        uint256 marketItemIndex = _marketItemIndex[itemId];
+
+        MarketItem memory marketItem = marketItems[marketItemIndex];
 
         require(
             msg.value == marketItem.price,
-            "Please submit the asking price in order to complete the purchase"
+            "msg.value must be equal to marketItem price"
         );
 
-        marketItem.seller.call{value: msg.value}("");
-        IERC721(nftContract).transferFrom(
-            address(this),
+        (bool sentToSeller, ) = marketItem.seller.call{value: msg.value}("");
+        require(sentToSeller, "Failed to send Ether to seller");
+
+        IERC721(marketItem.nftContract).transferFrom(
+            marketItem.seller,
             msg.sender,
             marketItem.tokenId
         );
 
-        marketItem.owner = payable(msg.sender);
-        marketItem.sold = true;
-        listingBalance += listingPrice;
-        _itemsSold.increment();
+        _deleteMarketItem(itemId);
     }
 
-    function getMarketItems() external view returns (MarketItem[] memory) {
-        uint256 itemsCount = _itemIds.current();
-        uint256 unsoldItemsCount = itemsCount - _itemsSold.current();
-        uint256 currentIndex = 0;
+    function _deleteMarketItem(uint256 itemId) internal {
+        uint256 marketItemIndex = _marketItemIndex[itemId];
+        uint256 marketItemsLength = marketItems.length;
 
-        MarketItem[] memory items = new MarketItem[](unsoldItemsCount);
-        for (uint256 i = 0; i < itemsCount; i++) {
-            if (idToMarketItem[i + 1].owner == address(0)) {
-                uint256 currentItemId = idToMarketItem[i + 1].id;
-                MarketItem memory currentItem = idToMarketItem[currentItemId];
-                items[currentIndex] = currentItem;
-                currentIndex += 1;
-            }
-        }
+        MarketItem memory marketItem = marketItems[marketItemIndex];
+        MarketItem memory lastItem = marketItems[marketItemsLength - 1];
 
-        return items;
+        marketItems[marketItemIndex] = lastItem;
+        _marketItemIndex[lastItem.itemId] = marketItemIndex;
+        _itemIdValid[itemId] = false;
+        _marketItemExists[marketItem.nftContract][marketItem.tokenId] = false;
+
+        marketItems.pop();
     }
 }
