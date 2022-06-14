@@ -4,14 +4,14 @@
   "description": "Audio NFT Marketplace",
   "private": true,
   "scripts": {
-    "dev": "npm run dev --workspace audio-nft-marketplace-frontend",
-    "build": "npm run build  --workspace audio-nft-marketplace-frontend",
-    "start": "npm run start  --workspace audio-nft-marketplace-frontend",
-    "chain": "npm run chain --workspace audio-nft-marketplace-hardhat",
-    "deploy-localhost": "npm run deploy-localhost --workspace audio-nft-marketplace-hardhat",
-    "deploy-mumbai": "npm run deploy-mumbai --workspace audio-nft-marketplace-hardhat",
-    "compile": "npm run compile --workspace audio-nft-marketplace-hardhat",
-    "hardhat-test": "npm run test --workspace audio-nft-marketplace-hardhat"
+    "dev": "npm run dev --workspace marketplace-frontend",
+    "build": "npm run build  --workspace marketplace-frontend",
+    "start": "npm run start  --workspace marketplace-frontend",
+    "chain": "npm run chain --workspace marketplace-hardhat",
+    "deploy-localhost": "npm run deploy-localhost --workspace marketplace-hardhat",
+    "deploy-mumbai": "npm run deploy-mumbai --workspace marketplace-hardhat",
+    "compile": "npm run compile --workspace marketplace-hardhat",
+    "hardhat-test": "npm run test --workspace marketplace-hardhat"
   },
   "workspaces": {
     "packages": [

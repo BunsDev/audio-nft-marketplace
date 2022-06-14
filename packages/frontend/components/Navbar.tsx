@@ -12,14 +12,23 @@ import {
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { HamburgerIcon } from "@chakra-ui/icons";
-import AccountButton from "./AccountButton";
-import useEagerConnect from "../hooks/useEagerConnect";
+import Web3Connect from "./Web3Connect";
+import { network, hooks as networkHooks } from "../connectors/network";
+import { useEffect, useState } from "react";
 
 const Navbar = () => {
-  const triedToEagerConnect = useEagerConnect();
+  const { useChainId, useIsActive, useIsActivating } = networkHooks;
+  const isActive = useIsActive();
+  const isActivating = useIsActivating();
+  const chainId = useChainId();
+  const [error, setError] = useState<any | undefined>(undefined);
+
+  useEffect(() => {
+    network.activate();
+  }, []);
 
   return (
-    <Box w="100%" bg="purple.50">
+    <Box w="100%" shadow="md" bg="gray.50">
       <Container
         maxW="container.lg"
         display="flex"
@@ -46,9 +55,16 @@ const Navbar = () => {
           </NextLink>
         </HStack>
 
-        <Box>
-          <AccountButton triedToEagerConnect={triedToEagerConnect} />
+        <Web3Connect
+          connector={network}
+          chainId={chainId}
+          isActivating={isActivating}
+          isActive={isActive}
+          error={error}
+          setError={setError}
+        />
 
+        <Box>
           <Box display={{ base: "inline-block", md: "none" }} ml={2}>
             <Menu>
               <MenuButton
