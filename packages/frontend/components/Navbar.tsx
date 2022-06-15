@@ -12,16 +12,19 @@ import {
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { HamburgerIcon } from "@chakra-ui/icons";
-import Web3Connect from "./Web3Connect";
+import Web3ConnectWithSelect from "./Web3ConnectWithSelect";
+import WalletConnectButton from "./WalletConnectButton";
 import { network, hooks as networkHooks } from "../connectors/network";
 import { useEffect, useState } from "react";
 
 const Navbar = () => {
-  const { useChainId, useIsActive, useIsActivating } = networkHooks;
-  const isActive = useIsActive();
-  const isActivating = useIsActivating();
+  const { useChainId } = networkHooks;
   const chainId = useChainId();
   const [error, setError] = useState<any | undefined>(undefined);
+
+  useEffect(() => {
+    console.log(error);
+  }, [error]);
 
   useEffect(() => {
     network.activate();
@@ -55,14 +58,13 @@ const Navbar = () => {
           </NextLink>
         </HStack>
 
-        <Web3Connect
+        <Web3ConnectWithSelect
           connector={network}
           chainId={chainId}
-          isActivating={isActivating}
-          isActive={isActive}
-          error={error}
           setError={setError}
         />
+
+        <WalletConnectButton setError={setError} />
 
         <Box>
           <Box display={{ base: "inline-block", md: "none" }} ml={2}>

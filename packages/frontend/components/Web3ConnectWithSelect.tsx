@@ -4,13 +4,11 @@ import { Network } from "@web3-react/network";
 import { useCallback, useState } from "react";
 import { CHAINS, getAddChainParameters, URLS } from "../chains";
 import { Select, Box } from "@chakra-ui/react";
+import { metaMask, hooks as metaMaskHooks } from "../connectors/metaMask";
 
 interface Web3ConnectProps {
   connector: MetaMask | Network;
   chainId: ReturnType<Web3ReactHooks["useChainId"]>;
-  isActivating: ReturnType<Web3ReactHooks["useIsActivating"]>;
-  isActive: ReturnType<Web3ReactHooks["useIsActive"]>;
-  error: Error | undefined;
   setError: (error: Error | undefined) => void;
 }
 
@@ -45,16 +43,15 @@ function ChainSelect({
   );
 }
 
-export default function Web3Connect({
+export default function Web3ConnectWithSelect({
   connector,
   chainId,
-  isActivating,
-  isActive,
-  error,
   setError,
 }: Web3ConnectProps) {
   const isNetwork = connector instanceof Network;
   const displayDefault = !isNetwork;
+  const { useAccount } = metaMaskHooks;
+  const account = useAccount();
 
   const chainIds = isNetwork
     ? Object.keys(URLS).map((chainId) => Number(chainId))
@@ -62,7 +59,7 @@ export default function Web3Connect({
 
   //TODO: the default network is Mumbai
   const [desiredChainId, setDesiredChainId] = useState<number>(
-    isNetwork ? 1 : -1
+    isNetwork ? 31337 : -1
   );
 
   const switchChain = useCallback(
@@ -80,6 +77,13 @@ export default function Web3Connect({
           .activate(desiredChainId === -1 ? undefined : desiredChainId)
           .then(() => setError(undefined))
           .catch(setError);
+
+        if (account) {
+          metaMask
+            .activate(desiredChainId === -1 ? undefined : desiredChainId)
+            .then(() => setError(undefined))
+            .catch(setError);
+        }
       } else {
         connector
           .activate(
@@ -91,7 +95,7 @@ export default function Web3Connect({
           .catch(setError);
       }
     },
-    [connector, chainId, setError]
+    [connector, chainId, setError, account]
   );
 
   return (
