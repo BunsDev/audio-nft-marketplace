@@ -9,6 +9,7 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  useToast,
 } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { HamburgerIcon } from "@chakra-ui/icons";
@@ -18,16 +19,28 @@ import { network, hooks as networkHooks } from "../connectors/network";
 import { useEffect, useState } from "react";
 
 const Navbar = () => {
+  const toast = useToast();
   const { useChainId } = networkHooks;
   const chainId = useChainId();
   const [error, setError] = useState<any | undefined>(undefined);
 
   useEffect(() => {
-    console.log(error);
+    if (error) {
+      toast({
+        title: "Network error",
+        description: `${error.message}`,
+        status: "error",
+        duration: 7000,
+        isClosable: true,
+      });
+    }
   }, [error]);
 
   useEffect(() => {
-    network.activate();
+    network
+      .activate()
+      .then(() => setError(undefined))
+      .catch(setError);
   }, []);
 
   return (
@@ -38,13 +51,12 @@ const Navbar = () => {
         justifyContent="space-between"
         alignItems="center"
         py={2}
-        px={4}
       >
-        <Heading size="lg" fontWeight="light">
+        <Heading textAlign="center" size="lg" fontWeight="light">
           NFT Marketplace
         </Heading>
 
-        <HStack spacing={7} display={{ base: "none", md: "flex" }}>
+        <HStack spacing={7} display={{ base: "none", lg: "flex" }}>
           <NextLink href="/" passHref>
             <Link>Marketplace</Link>
           </NextLink>
@@ -58,16 +70,18 @@ const Navbar = () => {
           </NextLink>
         </HStack>
 
-        <Web3ConnectWithSelect
-          connector={network}
-          chainId={chainId}
-          setError={setError}
-        />
+        <Box display="flex">
+          <HStack>
+            <Web3ConnectWithSelect
+              connector={network}
+              chainId={chainId}
+              setError={setError}
+            />
 
-        <WalletConnectButton setError={setError} />
+            <WalletConnectButton setError={setError} />
+          </HStack>
 
-        <Box>
-          <Box display={{ base: "inline-block", md: "none" }} ml={2}>
+          <Box display={{ base: "inline-block", lg: "none" }} ml={2}>
             <Menu>
               <MenuButton
                 as={IconButton}

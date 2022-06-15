@@ -31,7 +31,7 @@ export default function WalletConnectButton({ setError }: Props) {
 
   return (
     <Button disabled={!chainId} onClick={handleConnect}>
-      Connect
+      Connect Wallet
     </Button>
   );
 }
