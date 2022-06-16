@@ -12,10 +12,10 @@ function getNFTs(nftContract: NFT) {
 }
 
 export default function useNFTs(
-  nftAddress: string | undefined,
+  nftContractAddress: string | undefined,
   suspense = false
 ) {
-  const nftContract = useNFTContract(nftAddress);
+  const nftContract = useNFTContract(nftContractAddress);
   const shouldFetch = !!nftContract;
 
   const result = useSWR(shouldFetch ? ["NFTs"] : null, getNFTs(nftContract!), {

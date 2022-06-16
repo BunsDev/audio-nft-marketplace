@@ -1,11 +1,12 @@
 import type { NextPage } from "next";
-import { Box, Select } from "@chakra-ui/react";
+import { Box, Select, SimpleGrid } from "@chakra-ui/react";
 import { Collection } from "../collections";
 import { ChangeEvent, useEffect, useState } from "react";
 import useCollections from "../hooks/useCollections";
 import NewNFTButton from "../components/NewNFTButton";
 import useOwnerNFTs from "../hooks/useOwnerNFTs";
 import { hooks as metaMaskHooks } from "../connectors/metaMask";
+import NFTCard from "../components/NFTCard";
 
 const MyNFTs: NextPage = () => {
   const collections = useCollections();
@@ -45,17 +46,24 @@ const MyNFTs: NextPage = () => {
 
       {desiredCollection && (
         <Box>
-          <Box display="flex" flexDir="row-reverse">
-            <NewNFTButton nftAddress={desiredCollection.address} />
+          <Box mb={10} display="flex" flexDir="row-reverse">
+            <NewNFTButton nftContract={desiredCollection.address} />
           </Box>
 
-          <Box>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
             {nfts
-              ? nfts.map((nft) => {
-                  return <Box>{nft.tokenId.toString()}</Box>;
+              ? nfts.map((nft, i) => {
+                  return (
+                    <NFTCard
+                      key={i}
+                      nftContractAddress={desiredCollection.address}
+                      tokenId={nft.tokenId}
+                      tokenURI={nft.tokenURI}
+                    />
+                  );
                 })
               : null}
-          </Box>
+          </SimpleGrid>
         </Box>
       )}
     </Box>

@@ -29,7 +29,7 @@ import { MutableRefObject, useRef, useState } from "react";
 import { create as createIPFSClient } from "ipfs-http-client";
 
 interface Props {
-  nftAddress: string;
+  nftContractAddress: string;
 }
 
 interface FormValues {
@@ -43,7 +43,7 @@ const ipfsClient = createIPFSClient({
   url: "https://ipfs.infura.io:5001/api/v0",
 });
 
-export default function NewNFTButton({ nftAddress }: Props) {
+export default function NewNFTButton({ nftContractAddress }: Props) {
   const toast = useToast();
   const [uploadingInfo, setUploadingInfo] = useState<{
     fileName: string;
@@ -56,7 +56,7 @@ export default function NewNFTButton({ nftAddress }: Props) {
   const imageInputRef = useRef() as MutableRefObject<HTMLInputElement>;
   const audioInputRef = useRef() as MutableRefObject<HTMLInputElement>;
 
-  const nftContract = useNFTContract(nftAddress);
+  const nftContract = useNFTContract(nftContractAddress);
 
   const formInitialValues: FormValues = {
     name: "",

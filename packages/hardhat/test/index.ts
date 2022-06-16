@@ -1,19 +1,30 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-describe("Greeter", function () {
-  it("Should return the new greeting once it's changed", async function () {
-    const Greeter = await ethers.getContractFactory("Greeter");
-    const greeter = await Greeter.deploy("Hello, world!");
-    await greeter.deployed();
+describe("NFT", function () {
+  it("Should add new NFT", async function () {
+    const [_, user1, user2] = await ethers.getSigners();
 
-    expect(await greeter.greet()).to.equal("Hello, world!");
+    const NFT = await ethers.getContractFactory("NFT");
+    const nft = await NFT.deploy(ethers.constants.AddressZero);
+    await nft.deployed();
 
-    const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
+    let tx = await nft.connect(user1).mintToken("test1");
+    await tx.wait();
 
-    // wait until the transaction is mined
-    await setGreetingTx.wait();
+    tx = await nft.connect(user1).mintToken("test2");
+    await tx.wait();
 
-    expect(await greeter.greet()).to.equal("Hola, mundo!");
+    tx = await nft.connect(user2).mintToken("test3");
+    await tx.wait();
+
+    const user1Tokens = await nft.getOwnerTokens(user1.address);
+    expect(user1Tokens.length).to.eq(2);
+
+    const user2Tokens = await nft.getOwnerTokens(user2.address);
+    expect(user2Tokens.length).to.eq(1);
+
+    const allTokens = await nft.getAllTokens();
+    expect(allTokens.length).to.eq(3);
   });
 });

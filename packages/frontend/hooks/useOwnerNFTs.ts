@@ -10,11 +10,11 @@ function getOwnerNFTs(nftContract: NFT) {
 }
 
 export default function useOwnerNFTs(
-  nftAddress: string | undefined,
+  nftContractAddress: string | undefined,
   owner: string | undefined,
   suspense = false
 ) {
-  const nftContract = useNFTContract(nftAddress);
+  const nftContract = useNFTContract(nftContractAddress);
   const shouldFetch = !!nftContract && typeof owner === "string";
 
   const result = useSWR(
