@@ -48,8 +48,10 @@ const Navbar = () => {
       <Container
         maxW="container.lg"
         display="flex"
+        flexDirection={{ base: "column", md: "row" }}
         justifyContent="space-between"
         alignItems="center"
+        gap={2}
         py={2}
       >
         <Heading textAlign="center" size="lg" fontWeight="light">
@@ -81,7 +83,7 @@ const Navbar = () => {
             <WalletConnectButton setError={setError} />
           </HStack>
 
-          <Box display={{ base: "inline-block", lg: "none" }} ml={2}>
+          <Box zIndex={2} display={{ base: "inline-block", lg: "none" }} ml={2}>
             <Menu>
               <MenuButton
                 as={IconButton}

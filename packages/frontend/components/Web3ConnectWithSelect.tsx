@@ -80,7 +80,11 @@ export default function Web3ConnectWithSelect({
 
         if (account) {
           metaMask
-            .activate(desiredChainId === -1 ? undefined : desiredChainId)
+            .activate(
+              desiredChainId === -1
+                ? undefined
+                : getAddChainParameters(desiredChainId)
+            )
             .then(() => setError(undefined))
             .catch(setError);
         }

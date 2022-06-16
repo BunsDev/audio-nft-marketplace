@@ -4,12 +4,18 @@ import { Collection } from "../collections";
 import { ChangeEvent, useEffect, useState } from "react";
 import useCollections from "../hooks/useCollections";
 import NewNFTButton from "../components/NewNFTButton";
+import useOwnerNFTs from "../hooks/useOwnerNFTs";
+import { hooks as metaMaskHooks } from "../connectors/metaMask";
 
 const MyNFTs: NextPage = () => {
   const collections = useCollections();
+  const { useAccount } = metaMaskHooks;
+  const account = useAccount();
   const [desiredCollection, setDesiredCollection] = useState<
     Collection | undefined
   >();
+
+  const { data: nfts } = useOwnerNFTs(desiredCollection?.address, account);
 
   useEffect(() => {
     if (collections && !desiredCollection) {
@@ -38,8 +44,18 @@ const MyNFTs: NextPage = () => {
       </Select>
 
       {desiredCollection && (
-        <Box display="flex" flexDir="row-reverse">
-          <NewNFTButton nftAddress={desiredCollection.address} />
+        <Box>
+          <Box display="flex" flexDir="row-reverse">
+            <NewNFTButton nftAddress={desiredCollection.address} />
+          </Box>
+
+          <Box>
+            {nfts
+              ? nfts.map((nft) => {
+                  return <Box>{nft.tokenId.toString()}</Box>;
+                })
+              : null}
+          </Box>
         </Box>
       )}
     </Box>
