@@ -31,8 +31,8 @@ contract NFTMarketPlace is ReentrancyGuard, Ownable {
     // itemId => isValid
     mapping(uint256 => bool) private _itemIdValid;
 
-    // nftContract => tokenId => exists
-    mapping(address => mapping(uint256 => bool)) private _marketItemExists;
+    // nftContract => tokenId => itemId
+    mapping(address => mapping(uint256 => uint256)) public _marketItemExists;
 
     event MarketItemCreated(
         uint256 indexed itemId,
@@ -48,7 +48,7 @@ contract NFTMarketPlace is ReentrancyGuard, Ownable {
         uint256 price
     ) external payable nonReentrant {
         require(
-            _marketItemExists[nftContract][tokenId] == false,
+            _marketItemExists[nftContract][tokenId] == 0,
             "item already exists"
         );
 
@@ -78,7 +78,7 @@ contract NFTMarketPlace is ReentrancyGuard, Ownable {
         marketItems.push(newMarketItem);
         _marketItemIndex[itemId] = marketItems.length - 1;
         _itemIdValid[itemId] = true;
-        _marketItemExists[nftContract][tokenId] = true;
+        _marketItemExists[nftContract][tokenId] = itemId;
 
         if (listingPrice > 0) {
             (bool sent, ) = owner().call{value: listingPrice}("");
@@ -136,7 +136,7 @@ contract NFTMarketPlace is ReentrancyGuard, Ownable {
         marketItems[marketItemIndex] = lastItem;
         _marketItemIndex[lastItem.itemId] = marketItemIndex;
         _itemIdValid[itemId] = false;
-        _marketItemExists[marketItem.nftContract][marketItem.tokenId] = false;
+        _marketItemExists[marketItem.nftContract][marketItem.tokenId] = 0;
 
         marketItems.pop();
     }

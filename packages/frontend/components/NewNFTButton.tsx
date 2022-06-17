@@ -50,8 +50,8 @@ export default function NewNFTButton({ nftContractAddress }: Props) {
     progressValue: number;
   }>();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { useAccount } = metaMaskHooks;
-  const account = useAccount();
+  const { useProvider } = metaMaskHooks;
+  const signer = useProvider()?.getSigner();
 
   const imageInputRef = useRef() as MutableRefObject<HTMLInputElement>;
   const audioInputRef = useRef() as MutableRefObject<HTMLInputElement>;
@@ -67,7 +67,7 @@ export default function NewNFTButton({ nftContractAddress }: Props) {
     values: FormValues,
     actions: FormikHelpers<FormValues>
   ) => {
-    if (!nftContract) return;
+    if (!nftContract || !signer) return;
 
     try {
       const { name, description, image, audio } = values;
@@ -81,7 +81,6 @@ export default function NewNFTButton({ nftContractAddress }: Props) {
       if (image) {
         const imageAdded = await ipfsClient.add(image, {
           progress: (prog) => {
-            console.log(prog);
             setUploadingInfo({
               fileName: image.name,
               progressValue: (prog / image.size) * 100,
@@ -97,7 +96,6 @@ export default function NewNFTButton({ nftContractAddress }: Props) {
       if (audio) {
         const audioAdded = await ipfsClient.add(audio, {
           progress: (prog) => {
-            console.log(prog);
             setUploadingInfo({
               fileName: audio.name,
               progressValue: (prog / audio.size) * 100,
@@ -113,7 +111,7 @@ export default function NewNFTButton({ nftContractAddress }: Props) {
       const dataAdded = await ipfsClient.add(JSON.stringify(data));
       const tokenURI = `https://ipfs.infura.io/ipfs/${dataAdded.path}`;
 
-      const tx = await nftContract.mintToken(tokenURI);
+      const tx = await nftContract.connect(signer).mintToken(tokenURI);
       await tx.wait();
 
       toast({
@@ -143,7 +141,7 @@ export default function NewNFTButton({ nftContractAddress }: Props) {
     <Box>
       <Button
         onClick={onOpen}
-        isDisabled={!account}
+        isDisabled={!signer}
         leftIcon={<PlusSquareIcon />}
       >
         Add New NFT

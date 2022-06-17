@@ -1,13 +1,27 @@
-import { Box, Image, VStack, Text, Center, Divider } from "@chakra-ui/react";
+import {
+  Box,
+  Image,
+  VStack,
+  Text,
+  Center,
+  Divider,
+  Badge,
+} from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { useEffect, useState } from "react";
 import ReactAudioPlayer from "react-audio-player";
+import { NFTMarketPlace } from "../contracts/types";
+import useCurrentChainParams from "../hooks/useCurrentChainParams";
+import { parseBalance } from "../utils";
 import ListNFTForSaleButton from "./ListNFTForSaleButton";
+import { hooks as metaMaskHooks } from "../connectors/metaMask";
+import useNFTContract from "../hooks/useNFTContract";
 
 interface Props {
   tokenId: BigNumber;
   tokenURI: string;
   nftContractAddress: string;
+  marketItem?: NFTMarketPlace.MarketItemStructOutput;
 }
 
 interface TokenInfo {
@@ -21,16 +35,26 @@ export default function NFTCard({
   nftContractAddress,
   tokenId,
   tokenURI,
+  marketItem,
 }: Props) {
   const [tokenInfo, setTokenInfo] = useState<TokenInfo>();
+  const [tokenOwner, setTokenOwner] = useState<string>();
+  const chainParams = useCurrentChainParams();
+  const { useAccount } = metaMaskHooks;
+  const account = useAccount();
+  const nftContract = useNFTContract(nftContractAddress);
 
   useEffect(() => {
-    (async () => {
-      const response = await fetch(tokenURI);
-      const tokenInfo = await response.json();
-      setTokenInfo(tokenInfo);
-    })();
-  }, []);
+    if (nftContract) {
+      (async () => {
+        const response = await fetch(tokenURI);
+        const tokenInfo = await response.json();
+        const tokenOwner = await nftContract.ownerOf(tokenId);
+        setTokenOwner(tokenOwner);
+        setTokenInfo(tokenInfo);
+      })();
+    }
+  }, [nftContract]);
 
   return (
     <Box
@@ -43,7 +67,23 @@ export default function NFTCard({
     >
       {tokenInfo ? (
         <Box>
-          <Box height="350px">
+          <Box height="350px" position="relative">
+            {marketItem && (
+              <Badge
+                colorScheme="green"
+                variant="solid"
+                position="absolute"
+                top={2}
+                right={2}
+              >
+                {parseBalance(
+                  marketItem.price,
+                  chainParams?.nativeCurrency.decimals
+                )}{" "}
+                {chainParams?.nativeCurrency.symbol}
+              </Badge>
+            )}
+
             <Image
               src={tokenInfo.imageURL}
               alt={tokenInfo.name}
@@ -69,10 +109,12 @@ export default function NFTCard({
           <Divider />
 
           <Box display="flex" flexDirection="row-reverse" gap={2} py={2} px={6}>
-            <ListNFTForSaleButton
-              nftContractAddress={nftContractAddress}
-              tokenId={tokenId}
-            />
+            {account === tokenOwner ? (
+              <ListNFTForSaleButton
+                nftContractAddress={nftContractAddress}
+                tokenId={tokenId}
+              />
+            ) : null}
           </Box>
         </Box>
       ) : null}

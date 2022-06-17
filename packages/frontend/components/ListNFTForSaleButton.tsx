@@ -24,7 +24,8 @@ import {
 import { BigNumber, ethers } from "ethers";
 import { FiShoppingCart } from "react-icons/fi";
 import useMarketplaceContract from "../hooks/useMarketplaceContact";
-import { Formik, Field, FormikHelpers, FormikErrors } from "formik";
+import { Formik, FormikHelpers, FormikErrors } from "formik";
+import { hooks as metaMaskHooks } from "../connectors/metaMask";
 
 interface Props {
   nftContractAddress: string;
@@ -40,8 +41,11 @@ export default function ListNFTForSaleButton({
   tokenId,
 }: Props) {
   const toast = useToast();
+
   const marketplaceContract = useMarketplaceContract();
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const { useProvider } = metaMaskHooks;
+  const signer = useProvider()?.getSigner();
 
   const formInitialValues: FormValues = {
     price: "",
@@ -51,13 +55,15 @@ export default function ListNFTForSaleButton({
     values: FormValues,
     actions: FormikHelpers<FormValues>
   ) => {
-    if (!marketplaceContract) return;
+    if (!marketplaceContract || !signer) return;
     try {
-      const tx = await marketplaceContract.createMarketItem(
-        nftContractAddress,
-        tokenId,
-        ethers.utils.parseEther(values.price)
-      );
+      const tx = await marketplaceContract
+        .connect(signer)
+        .createMarketItem(
+          nftContractAddress,
+          tokenId,
+          ethers.utils.parseEther(values.price)
+        );
       await tx.wait();
 
       toast({

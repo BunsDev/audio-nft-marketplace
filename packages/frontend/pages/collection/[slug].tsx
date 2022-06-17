@@ -11,12 +11,15 @@ import { useRouter } from "next/router";
 import useCollection from "../../hooks/useCollection";
 import useNFTs from "../../hooks/useNFTs";
 import NFTCard from "../../components/NFTCard";
+import useMarketplaceItems from "../../hooks/useMarketplaceItems";
+import { findmarketItemByTokenId } from "../../utils";
 
 const CollectionPage: NextPage = () => {
   const router = useRouter();
   const collectionSlug = router.query.slug as string;
   const { collection, resolved } = useCollection(collectionSlug);
   const { data: nfts } = useNFTs(collection?.address);
+  const { data: marketplaceItems } = useMarketplaceItems();
 
   if (!collection && resolved) {
     return (
@@ -51,7 +54,7 @@ const CollectionPage: NextPage = () => {
           <Divider p={2} />
 
           <SimpleGrid py={10} columns={{ base: 1, md: 2 }} spacing={10}>
-            {nfts
+            {nfts && marketplaceItems
               ? nfts.map((nft, i) => {
                   return (
                     <NFTCard
@@ -59,6 +62,10 @@ const CollectionPage: NextPage = () => {
                       nftContractAddress={collection.address}
                       tokenId={nft.tokenId}
                       tokenURI={nft.tokenURI}
+                      marketItem={findmarketItemByTokenId(
+                        marketplaceItems,
+                        nft.tokenId
+                      )}
                     />
                   );
                 })

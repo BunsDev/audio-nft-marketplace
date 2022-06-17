@@ -30,28 +30,26 @@ function isExtendedChainInformation(
 
 export function getAddChainParameters(
   chainId: number
-): AddEthereumChainParameter | number {
+): AddEthereumChainParameter {
   const chainInformation = CHAINS[chainId];
 
-  if (isExtendedChainInformation(chainInformation)) {
-    return {
-      chainId,
-      chainName: chainInformation.name,
-      nativeCurrency: chainInformation.nativeCurrency,
-      rpcUrls: chainInformation.urls,
-      blockExplorerUrls: chainInformation.blockExplorerUrls,
-    };
-  } else {
-    return chainId;
-  }
+  return {
+    chainId,
+    chainName: chainInformation.name,
+    nativeCurrency: chainInformation.nativeCurrency,
+    rpcUrls: chainInformation.urls,
+    blockExplorerUrls: chainInformation.blockExplorerUrls,
+  };
 }
 
 export const CHAINS: {
-  [chainId: number]: BasicChainInformation | ExtendedChainInformation;
+  [chainId: number]: ExtendedChainInformation;
 } = {
   31337: {
     urls: ["http://127.0.0.1:8545"],
     name: "Hardhat",
+    nativeCurrency: ETH,
+    blockExplorerUrls: [],
   },
   80001: {
     urls: process.env.NEXT_PUBLIC_ALCHEMY_KEY

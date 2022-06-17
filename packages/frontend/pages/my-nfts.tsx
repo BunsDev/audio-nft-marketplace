@@ -7,6 +7,8 @@ import NewNFTButton from "../components/NewNFTButton";
 import useOwnerNFTs from "../hooks/useOwnerNFTs";
 import { hooks as metaMaskHooks } from "../connectors/metaMask";
 import NFTCard from "../components/NFTCard";
+import useMarketplaceItems from "../hooks/useMarketplaceItems";
+import { findmarketItemByTokenId } from "../utils";
 
 const MyNFTs: NextPage = () => {
   const collections = useCollections();
@@ -17,6 +19,7 @@ const MyNFTs: NextPage = () => {
   >();
 
   const { data: nfts } = useOwnerNFTs(desiredCollection?.address, account);
+  const { data: marketplaceItems } = useMarketplaceItems();
 
   useEffect(() => {
     if (collections && !desiredCollection) {
@@ -51,7 +54,7 @@ const MyNFTs: NextPage = () => {
           </Box>
 
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
-            {nfts
+            {nfts && marketplaceItems
               ? nfts.map((nft, i) => {
                   return (
                     <NFTCard
@@ -59,6 +62,10 @@ const MyNFTs: NextPage = () => {
                       nftContractAddress={desiredCollection.address}
                       tokenId={nft.tokenId}
                       tokenURI={nft.tokenURI}
+                      marketItem={findmarketItemByTokenId(
+                        marketplaceItems,
+                        nft.tokenId
+                      )}
                     />
                   );
                 })
