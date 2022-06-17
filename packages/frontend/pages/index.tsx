@@ -8,7 +8,7 @@ const Home: NextPage = () => {
 
   return (
     <Box>
-      <Heading size="lg" mb={10} textAlign="center">
+      <Heading color="gray.700" size="lg" mb={10} textAlign="center">
         NFT Collections
       </Heading>
 

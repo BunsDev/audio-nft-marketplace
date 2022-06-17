@@ -28,7 +28,7 @@ const Navbar = () => {
     if (error) {
       toast({
         title: "Network error",
-        description: `${error.message}`,
+        description: error.message,
         status: "error",
         duration: 7000,
         isClosable: true,

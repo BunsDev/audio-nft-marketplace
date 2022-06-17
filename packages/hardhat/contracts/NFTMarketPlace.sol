@@ -140,4 +140,9 @@ contract NFTMarketPlace is ReentrancyGuard, Ownable {
 
         marketItems.pop();
     }
+
+    function getMarketItems() external view returns (MarketItem[] memory) {
+        return marketItems;
+    }
+
 }

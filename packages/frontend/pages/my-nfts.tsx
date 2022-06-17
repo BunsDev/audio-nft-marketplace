@@ -47,7 +47,7 @@ const MyNFTs: NextPage = () => {
       {desiredCollection && (
         <Box>
           <Box mb={10} display="flex" flexDir="row-reverse">
-            <NewNFTButton nftContract={desiredCollection.address} />
+            <NewNFTButton nftContractAddress={desiredCollection.address} />
           </Box>
 
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>

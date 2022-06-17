@@ -128,7 +128,7 @@ export default function NewNFTButton({ nftContractAddress }: Props) {
 
       toast({
         title: "Add New NFT",
-        description: `${error.message}`,
+        description: error.message,
         status: "error",
         duration: 7000,
         isClosable: true,
