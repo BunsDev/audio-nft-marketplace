@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { CHAINS, getAddChainParameters, URLS } from "../chains";
 import { Select, Box } from "@chakra-ui/react";
 import { metaMask, hooks as metaMaskHooks } from "../connectors/metaMask";
+import { useSWRConfig } from "swr";
 
 interface Web3ConnectProps {
   connector: MetaMask | Network;
@@ -48,6 +49,7 @@ export default function Web3ConnectWithSelect({
   chainId,
   setError,
 }: Web3ConnectProps) {
+  const { cache } = useSWRConfig();
   const isNetwork = connector instanceof Network;
   const displayDefault = !isNetwork;
   const { useAccount } = metaMaskHooks;
@@ -71,6 +73,8 @@ export default function Web3ConnectWithSelect({
 
       // if they want to connect to the default chain and we're already connected, return
       if (desiredChainId === -1 && chainId !== undefined) return;
+
+      (cache as any).clear();
 
       if (connector instanceof Network) {
         connector

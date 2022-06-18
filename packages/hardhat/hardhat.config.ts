@@ -26,7 +26,9 @@ const config: HardhatUserConfig = {
   solidity: "0.8.4",
   networks: {
     mumbai: {
-      url: process.env.MUMBAI_URL || "",
+      url:
+        `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}` ||
+        "",
       chainId: 80001,
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
