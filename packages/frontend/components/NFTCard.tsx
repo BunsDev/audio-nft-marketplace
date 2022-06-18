@@ -6,6 +6,7 @@ import {
   Center,
   Divider,
   Badge,
+  Button,
 } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { useEffect, useState } from "react";
@@ -16,6 +17,8 @@ import { parseBalance } from "../utils";
 import ListNFTForSaleButton from "./ListNFTForSaleButton";
 import { hooks as metaMaskHooks } from "../connectors/metaMask";
 import useNFTContract from "../hooks/useNFTContract";
+import { FiShoppingCart } from "react-icons/fi";
+import BuyNFTButton from "./BuyNFTButton";
 
 interface Props {
   tokenId: BigNumber;
@@ -113,6 +116,14 @@ export default function NFTCard({
               <ListNFTForSaleButton
                 nftContractAddress={nftContractAddress}
                 tokenId={tokenId}
+                alreadyListed={!!marketItem}
+              />
+            ) : null}
+
+            {!!marketItem && account !== tokenOwner ? (
+              <BuyNFTButton
+                itemId={marketItem.itemId}
+                price={marketItem.price}
               />
             ) : null}
           </Box>

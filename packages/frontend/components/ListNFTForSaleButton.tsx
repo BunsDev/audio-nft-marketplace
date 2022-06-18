@@ -20,16 +20,20 @@ import {
   FormLabel,
   FormErrorMessage,
   useToast,
+  InputRightAddon,
+  InputGroup,
 } from "@chakra-ui/react";
 import { BigNumber, ethers } from "ethers";
 import { FiShoppingCart } from "react-icons/fi";
 import useMarketplaceContract from "../hooks/useMarketplaceContact";
 import { Formik, FormikHelpers, FormikErrors } from "formik";
 import { hooks as metaMaskHooks } from "../connectors/metaMask";
+import useCurrentChainParams from "../hooks/useCurrentChainParams";
 
 interface Props {
   nftContractAddress: string;
   tokenId: BigNumber;
+  alreadyListed: boolean;
 }
 
 interface FormValues {
@@ -39,6 +43,7 @@ interface FormValues {
 export default function ListNFTForSaleButton({
   nftContractAddress,
   tokenId,
+  alreadyListed,
 }: Props) {
   const toast = useToast();
 
@@ -46,6 +51,7 @@ export default function ListNFTForSaleButton({
   const { isOpen, onClose, onOpen } = useDisclosure();
   const { useProvider } = metaMaskHooks;
   const signer = useProvider()?.getSigner();
+  const chainParams = useCurrentChainParams();
 
   const formInitialValues: FormValues = {
     price: "",
@@ -91,13 +97,16 @@ export default function ListNFTForSaleButton({
 
   return (
     <Box>
-      <Tooltip hasArrow label="list NFT for sale">
+      {/* <Tooltip hasArrow label="list NFT for sale">
         <IconButton
           onClick={onOpen}
           aria-label="list for sale"
           icon={<FiShoppingCart />}
         />
-      </Tooltip>
+      </Tooltip> */}
+      <Button isDisabled={alreadyListed} onClick={onOpen}>
+        List for sale
+      </Button>
 
       <Formik
         validateOnMount
@@ -138,7 +147,9 @@ export default function ListNFTForSaleButton({
               <form onSubmit={handleSubmit}>
                 <ModalBody>
                   <FormControl isInvalid={touched.price && !!errors.price}>
-                    <FormLabel htmlFor="price">Price</FormLabel>
+                    <FormLabel htmlFor="price">
+                      {chainParams?.nativeCurrency.symbol} Price
+                    </FormLabel>
                     <NumberInput
                       onChange={(value) => setFieldValue("price", value)}
                       min={0}
