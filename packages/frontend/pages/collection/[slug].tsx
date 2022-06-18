@@ -55,10 +55,10 @@ const CollectionPage: NextPage = () => {
 
           <SimpleGrid py={10} columns={{ base: 1, md: 2 }} spacing={10}>
             {nfts && marketplaceItems
-              ? nfts.map((nft, i) => {
+              ? nfts.map((nft) => {
                   return (
                     <NFTCard
-                      key={i}
+                      key={nft.tokenId.toString()}
                       nftContractAddress={collection.address}
                       tokenId={nft.tokenId}
                       tokenURI={nft.tokenURI}

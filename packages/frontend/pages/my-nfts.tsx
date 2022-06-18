@@ -43,7 +43,9 @@ const MyNFTs: NextPage = () => {
     <Box>
       <Select mb={5} onChange={handleChange}>
         {collections.map((collection) => (
-          <option value={collection.slug}>{collection.name}</option>
+          <option key={collection.slug} value={collection.slug}>
+            {collection.name}
+          </option>
         ))}
       </Select>
 
@@ -55,10 +57,10 @@ const MyNFTs: NextPage = () => {
 
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
             {nfts && marketplaceItems
-              ? nfts.map((nft, i) => {
+              ? nfts.map((nft) => {
                   return (
                     <NFTCard
-                      key={i}
+                      key={nft.tokenId.toString()}
                       nftContractAddress={desiredCollection.address}
                       tokenId={nft.tokenId}
                       tokenURI={nft.tokenURI}

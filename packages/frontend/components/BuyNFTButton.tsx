@@ -7,11 +7,13 @@ import useMarketplaceContract from "../hooks/useMarketplaceContact";
 interface Props {
   itemId: BigNumber;
   price: BigNumber;
+  seller: string;
 }
 
-export default function BuyNFTButton({ itemId, price }: Props) {
+export default function BuyNFTButton({ itemId, price, seller }: Props) {
   const toast = useToast();
-  const { useProvider } = metaMaskHooks;
+  const { useProvider, useAccount } = metaMaskHooks;
+  const account = useAccount();
   const signer = useProvider()?.getSigner();
   const marketplaceContract = useMarketplaceContract();
 
@@ -46,7 +48,7 @@ export default function BuyNFTButton({ itemId, price }: Props) {
 
   return (
     <Button
-      disabled={!signer}
+      disabled={!signer || account === seller}
       onClick={handleBuy}
       leftIcon={<FiShoppingCart />}
     >

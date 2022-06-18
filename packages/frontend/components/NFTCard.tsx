@@ -6,7 +6,6 @@ import {
   Center,
   Divider,
   Badge,
-  Button,
 } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
 import { useEffect, useState } from "react";
@@ -16,9 +15,8 @@ import useCurrentChainParams from "../hooks/useCurrentChainParams";
 import { parseBalance } from "../utils";
 import ListNFTForSaleButton from "./ListNFTForSaleButton";
 import { hooks as metaMaskHooks } from "../connectors/metaMask";
-import useNFTContract from "../hooks/useNFTContract";
-import { FiShoppingCart } from "react-icons/fi";
 import BuyNFTButton from "./BuyNFTButton";
+import useTokenInfo from "../hooks/useTokenInfo";
 
 interface Props {
   tokenId: BigNumber;
@@ -27,37 +25,16 @@ interface Props {
   marketItem?: NFTMarketPlace.MarketItemStructOutput;
 }
 
-interface TokenInfo {
-  name: string;
-  description: string;
-  imageURL: string;
-  audioURL: string;
-}
-
 export default function NFTCard({
   nftContractAddress,
   tokenId,
   tokenURI,
   marketItem,
 }: Props) {
-  const [tokenInfo, setTokenInfo] = useState<TokenInfo>();
-  const [tokenOwner, setTokenOwner] = useState<string>();
   const chainParams = useCurrentChainParams();
   const { useAccount } = metaMaskHooks;
   const account = useAccount();
-  const nftContract = useNFTContract(nftContractAddress);
-
-  useEffect(() => {
-    if (nftContract) {
-      (async () => {
-        const response = await fetch(tokenURI);
-        const tokenInfo = await response.json();
-        const tokenOwner = await nftContract.ownerOf(tokenId);
-        setTokenOwner(tokenOwner);
-        setTokenInfo(tokenInfo);
-      })();
-    }
-  }, [nftContract]);
+  const tokenInfo = useTokenInfo(nftContractAddress, tokenId, tokenURI);
 
   return (
     <Box
@@ -112,7 +89,7 @@ export default function NFTCard({
           <Divider />
 
           <Box display="flex" flexDirection="row-reverse" gap={2} py={2} px={6}>
-            {account === tokenOwner ? (
+            {account === tokenInfo.owner ? (
               <ListNFTForSaleButton
                 nftContractAddress={nftContractAddress}
                 tokenId={tokenId}
@@ -120,7 +97,7 @@ export default function NFTCard({
               />
             ) : null}
 
-            {!!marketItem && account !== tokenOwner ? (
+            {!!marketItem && account !== tokenInfo.owner ? (
               <BuyNFTButton
                 itemId={marketItem.itemId}
                 price={marketItem.price}

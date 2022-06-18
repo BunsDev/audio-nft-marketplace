@@ -15,8 +15,7 @@ contract NFT is ERC721Enumerable, ERC721URIStorage {
         string tokenURI;
     }
 
-    constructor(address marketPlace) ERC721("MyToken", "MTK") {
-        operator = marketPlace;
+    constructor() ERC721("MyToken", "MTK") {
     }
 
     // The following functions are overrides required by Solidity.
@@ -62,7 +61,6 @@ contract NFT is ERC721Enumerable, ERC721URIStorage {
 
         _mint(msg.sender, tokenId);
         _setTokenURI(tokenId, _tokenURI);
-        _setApprovalForAll(msg.sender, operator, true);
 
         return tokenId;
     }

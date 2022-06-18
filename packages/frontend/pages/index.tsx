@@ -17,6 +17,7 @@ const Home: NextPage = () => {
           collections.map((collection) => {
             return (
               <CollectionCard
+                key={collection.slug}
                 slug={collection.slug}
                 name={collection.name}
                 image={collection.image}

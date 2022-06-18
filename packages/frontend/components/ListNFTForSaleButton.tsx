@@ -24,11 +24,11 @@ import {
   InputGroup,
 } from "@chakra-ui/react";
 import { BigNumber, ethers } from "ethers";
-import { FiShoppingCart } from "react-icons/fi";
 import useMarketplaceContract from "../hooks/useMarketplaceContact";
 import { Formik, FormikHelpers, FormikErrors } from "formik";
 import { hooks as metaMaskHooks } from "../connectors/metaMask";
 import useCurrentChainParams from "../hooks/useCurrentChainParams";
+import useNFTContract from "../hooks/useNFTContract";
 
 interface Props {
   nftContractAddress: string;
@@ -48,9 +48,11 @@ export default function ListNFTForSaleButton({
   const toast = useToast();
 
   const marketplaceContract = useMarketplaceContract();
+  const nftContract = useNFTContract(nftContractAddress);
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const { useProvider } = metaMaskHooks;
+  const { useProvider, useAccount } = metaMaskHooks;
   const signer = useProvider()?.getSigner();
+  const account = useAccount();
   const chainParams = useCurrentChainParams();
 
   const formInitialValues: FormValues = {
@@ -61,8 +63,19 @@ export default function ListNFTForSaleButton({
     values: FormValues,
     actions: FormikHelpers<FormValues>
   ) => {
-    if (!marketplaceContract || !signer) return;
+    if (!marketplaceContract || !signer || !account || !nftContract) return;
     try {
+      const isApproval = await nftContract.isApprovedForAll(
+        account,
+        marketplaceContract.address
+      );
+      if (!isApproval) {
+        const tx = await nftContract
+          .connect(signer)
+          .setApprovalForAll(marketplaceContract.address, true);
+        await tx.wait();
+      }
+
       const tx = await marketplaceContract
         .connect(signer)
         .createMarketItem(
@@ -179,7 +192,9 @@ export default function ListNFTForSaleButton({
                   <Button
                     type="submit"
                     isLoading={isSubmitting}
-                    isDisabled={!isValid || !marketplaceContract}
+                    isDisabled={
+                      !isValid || !marketplaceContract || !nftContract
+                    }
                   >
                     List
                   </Button>

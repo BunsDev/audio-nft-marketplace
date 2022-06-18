@@ -1,0 +1,81 @@
+import {
+  Badge,
+  Box,
+  HStack,
+  Image,
+  Text,
+  Center,
+  Stack,
+} from "@chakra-ui/react";
+import ReactAudioPlayer from "react-audio-player";
+import { NFTMarketPlace } from "../contracts/types";
+import useCurrentChainParams from "../hooks/useCurrentChainParams";
+import useTokenInfo from "../hooks/useTokenInfo";
+import { parseBalance } from "../utils";
+import BuyNFTButton from "./BuyNFTButton";
+
+interface Props {
+  marketItem: NFTMarketPlace.MarketItemStructOutput;
+}
+
+export default function NFTRankingCard({ marketItem }: Props) {
+  const chainParams = useCurrentChainParams();
+  const { nftContract, tokenId } = marketItem;
+  const tokenInfo = useTokenInfo(nftContract, tokenId);
+
+  return (
+    <Box w="full" p={2} shadow="lg">
+      {tokenInfo && (
+        <Box>
+          <HStack gap={2} justify="space-around" align="center">
+            <Stack
+              direction={{ base: "column", md: "row" }}
+              justify="center"
+              align="center"
+              gap={2}
+              h="full"
+            >
+              <Image
+                w="100px"
+                h="full"
+                objectFit="cover"
+                src={tokenInfo.imageURL}
+              />
+
+              <ReactAudioPlayer src={tokenInfo.audioURL} controls />
+            </Stack>
+
+            <Stack
+              direction={{ base: "column", md: "row" }}
+              justify="center"
+              align="center"
+            >
+              <Badge fontSize="lg" colorScheme="green" variant="solid">
+                {parseBalance(
+                  marketItem.price,
+                  chainParams?.nativeCurrency.decimals
+                )}{" "}
+                {chainParams?.nativeCurrency.symbol}
+              </Badge>
+
+              <BuyNFTButton
+                itemId={marketItem.itemId}
+                price={marketItem.price}
+                seller={marketItem.seller}
+              />
+            </Stack>
+          </HStack>
+
+          <Center flexDirection="column" mt={2}>
+            <Text noOfLines={1} fontSize="2xl" fontWeight="bold">
+              {tokenInfo.name}
+            </Text>
+            <Text noOfLines={1} color="gray.600">
+              {tokenInfo.description}
+            </Text>
+          </Center>
+        </Box>
+      )}
+    </Box>
+  );
+}

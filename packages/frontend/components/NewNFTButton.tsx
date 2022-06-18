@@ -162,6 +162,10 @@ export default function NewNFTButton({ nftContractAddress }: Props) {
             errors.audio = "Required";
           }
 
+          if (!values.image) {
+            errors.image = "Required";
+          }
+
           return errors;
         }}
       >
@@ -208,7 +212,7 @@ export default function NewNFTButton({ nftContractAddress }: Props) {
                       />
                     </FormControl>
 
-                    <FormControl>
+                    <FormControl isRequired>
                       <FormLabel>Image</FormLabel>
                       <InputGroup>
                         <InputLeftElement
