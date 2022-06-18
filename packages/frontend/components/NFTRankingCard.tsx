@@ -6,12 +6,14 @@ import {
   Text,
   Center,
   Stack,
+  Tooltip,
+  useClipboard,
 } from "@chakra-ui/react";
 import ReactAudioPlayer from "react-audio-player";
 import { NFTMarketPlace } from "../contracts/types";
 import useCurrentChainParams from "../hooks/useCurrentChainParams";
 import useTokenInfo from "../hooks/useTokenInfo";
-import { parseBalance } from "../utils";
+import { parseBalance, shortenHex } from "../utils";
 import BuyNFTButton from "./BuyNFTButton";
 
 interface Props {
@@ -22,6 +24,7 @@ export default function NFTRankingCard({ marketItem }: Props) {
   const chainParams = useCurrentChainParams();
   const { nftContract, tokenId } = marketItem;
   const tokenInfo = useTokenInfo(nftContract, tokenId);
+  const { hasCopied, onCopy } = useClipboard(tokenInfo?.owner || "");
 
   return (
     <Box w="full" p={2} shadow="lg">
@@ -73,6 +76,18 @@ export default function NFTRankingCard({ marketItem }: Props) {
             <Text noOfLines={1} color="gray.600">
               {tokenInfo.description}
             </Text>
+            <Box display="flex" gap={2}>
+              <Text color="gray.600">The owner:</Text>
+              <Tooltip
+                closeOnClick={false}
+                hasArrow
+                label={hasCopied ? "copied" : "copy to clipboard"}
+              >
+                <Text onClick={onCopy} cursor="pointer">
+                  {shortenHex(tokenInfo.owner)}
+                </Text>
+              </Tooltip>
+            </Box>
           </Center>
         </Box>
       )}
