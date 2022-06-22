@@ -1,5 +1,6 @@
 import { Button, useToast } from "@chakra-ui/react";
 import { BigNumber } from "ethers";
+import { useState } from "react";
 import { FiShoppingCart } from "react-icons/fi";
 import { hooks as metaMaskHooks } from "../connectors/metaMask";
 import useMarketplaceContract from "../hooks/useMarketplaceContact";
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function BuyNFTButton({ itemId, price, seller }: Props) {
+  const [loading, setLoading] = useState(false);
   const toast = useToast();
   const { useProvider, useAccount } = metaMaskHooks;
   const account = useAccount();
@@ -19,6 +21,8 @@ export default function BuyNFTButton({ itemId, price, seller }: Props) {
 
   const handleBuy = async () => {
     if (!marketplaceContract || !signer) return;
+
+    setLoading(true);
 
     try {
       const tx = await marketplaceContract
@@ -44,11 +48,14 @@ export default function BuyNFTButton({ itemId, price, seller }: Props) {
         isClosable: true,
       });
     }
+
+    setLoading(false);
   };
 
   return (
     <Button
       disabled={!signer || account === seller}
+      isLoading={loading}
       onClick={handleBuy}
       leftIcon={<FiShoppingCart />}
     >
