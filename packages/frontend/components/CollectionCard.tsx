@@ -50,6 +50,7 @@ const CollectionCard = ({ name, image, slug }: CollectionProps) => {
           width="full"
           objectFit="cover"
           src={image}
+          alt={slug}
         />
       </Box>
 

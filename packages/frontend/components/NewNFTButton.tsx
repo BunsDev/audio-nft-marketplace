@@ -215,10 +215,9 @@ export default function NewNFTButton({ nftContractAddress }: Props) {
                     <FormControl isRequired>
                       <FormLabel>Image</FormLabel>
                       <InputGroup>
-                        <InputLeftElement
-                          pointerEvents="none"
-                          children={<FiFile color="gray.300" />}
-                        />
+                        <InputLeftElement pointerEvents="none">
+                          <FiFile color="gray.300" />
+                        </InputLeftElement>
 
                         <input
                           ref={imageInputRef}
@@ -244,10 +243,9 @@ export default function NewNFTButton({ nftContractAddress }: Props) {
                     <FormControl isRequired>
                       <FormLabel>Audio</FormLabel>
                       <InputGroup>
-                        <InputLeftElement
-                          pointerEvents="none"
-                          children={<FiFile color="gray.300" />}
-                        />
+                        <InputLeftElement pointerEvents="none">
+                          <FiFile color="gray.300" />
+                        </InputLeftElement>
 
                         <input
                           ref={audioInputRef}

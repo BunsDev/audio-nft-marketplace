@@ -43,6 +43,7 @@ export default function NFTRankingCard({ marketItem }: Props) {
                 h="full"
                 objectFit="cover"
                 src={tokenInfo.imageURL}
+                alt={tokenInfo.name}
               />
 
               <ReactAudioPlayer src={tokenInfo.audioURL} controls />

@@ -38,7 +38,7 @@ const Navbar = () => {
 
   useEffect(() => {
     network
-      .activate()
+      .activate(80001)
       .then(() => setError(undefined))
       .catch(setError);
   }, []);

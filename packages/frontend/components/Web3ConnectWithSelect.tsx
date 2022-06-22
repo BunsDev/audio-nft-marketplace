@@ -61,7 +61,7 @@ export default function Web3ConnectWithSelect({
 
   //TODO: the default network is Mumbai
   const [desiredChainId, setDesiredChainId] = useState<number>(
-    isNetwork ? 31337 : -1
+    isNetwork ? 80001 : -1
   );
 
   const switchChain = useCallback(

@@ -2,7 +2,8 @@ import { metaMask, hooks as metaMaskHooks } from "../connectors/metaMask";
 import { hooks as networkHooks } from "../connectors/network";
 import { Button } from "@chakra-ui/react";
 import { shortenHex } from "../utils";
-import { getAddChainParameters } from "../chains";
+import { CHAINS, getAddChainParameters } from "../chains";
+import { useEffect } from "react";
 
 interface Props {
   setError: (error: Error | undefined) => void;
@@ -15,6 +16,14 @@ export default function WalletConnectButton({ setError }: Props) {
 
   const { useChainId } = networkHooks;
   const chainId = useChainId();
+
+  const chainIds = Object.keys(CHAINS).map((chainId) => Number(chainId));
+
+  useEffect(() => {
+    if (chainId && !chainIds.includes(chainId)) {
+      metaMask.deactivate();
+    }
+  }, [chainId]);
 
   const handleConnect = () => {
     if (!chainId) return;

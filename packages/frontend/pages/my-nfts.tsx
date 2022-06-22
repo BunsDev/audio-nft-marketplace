@@ -25,7 +25,7 @@ const MyNFTs: NextPage = () => {
     if (collections && !desiredCollection) {
       setDesiredCollection(collections[0]);
     }
-  }, [collections]);
+  }, [collections, desiredCollection]);
 
   const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
     if (!collections) return;
